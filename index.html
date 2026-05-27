@@ -149,6 +149,7 @@ input:focus,select:focus{outline:none;border-color:#8A9A2A;background:#fff}
   <div style="font-size:40px">⚽</div>
   <div style="font-size:14px;color:#fff;font-weight:500">Loading...</div>
 </div>
+<div id="deadline-banner" style="display:none;background:#D4E07D;padding:8px 16px;text-align:center;font-size:13px;font-weight:600;color:#5a6e00"></div>
 
 <!-- HOME -->
 <div id="home" class="page active">
@@ -281,6 +282,14 @@ input:focus,select:focus{outline:none;border-color:#8A9A2A;background:#fff}
 
 <script>
 const APP_KEY='dtc_pages';
+const PICKS_OPEN = new Date('2026-06-01T00:00:00');
+const PICKS_CLOSE = new Date('2026-06-10T23:59:59');
+function picksOpen() {
+  const now = new Date();
+  return now >= PICKS_OPEN && now <= PICKS_CLOSE;
+}
+function beforeOpen() { return new Date() < PICKS_OPEN; }
+function afterClose() { return new Date() > PICKS_CLOSE; }
 const SUPABASE_URL='https://jobljkexndalnlnermip.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpvYmxqa2V4bmRhbG5sbmVybWlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4ODYzNDksImV4cCI6MjA5NTQ2MjM0OX0.Z9s7Mw87-1sWEqg-Zj0_T1dRam4xI1efDWU7NEzSPFQ';
 
@@ -365,6 +374,29 @@ async function loadAll(){
 }
 
 // ===== INIT =====
+function checkDeadline(){
+  const banner = document.getElementById('deadline-banner');
+  const saveBtn = document.querySelector('.save-bar .btn-sm');
+  if(beforeOpen()){
+    banner.style.display='block';
+    banner.textContent='⏳ Picks open from June 1st — come back soon!';
+    if(saveBtn){saveBtn.disabled=true;saveBtn.style.opacity='0.4';}
+  } else if(afterClose()){
+    banner.style.display='block';
+    banner.textContent='🔒 Picks closed since June 10th. Results being updated by admin.';
+    if(saveBtn){saveBtn.disabled=true;saveBtn.style.opacity='0.4';}
+    // Disable all team tiles and bracket buttons
+    document.querySelectorAll('.team-tile, .team-pick, .reset-btn').forEach(el=>{
+      el.style.pointerEvents='none';el.style.opacity='0.7';
+    });
+    document.querySelectorAll('#pick-scorer, #pick-extra-time').forEach(el=>{el.disabled=true;});
+  } else {
+    banner.style.display='block';
+    banner.style.background='#D4E07D';
+    banner.textContent='✅ Picks open until June 10th — save before the tournament starts!';
+  }
+}
+
 async function init(){
   showLoading(true);
   try{
@@ -377,6 +409,7 @@ async function init(){
     loadUserPicks();
     updateProgress();
     renderRanking();
+    checkDeadline();
   }catch(e){
     console.error(e);
     const el=document.getElementById('loading');
