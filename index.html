@@ -515,6 +515,18 @@ function getSlotInfo(slot){
     const {flag,name}=splitTeam(w);
     return {flag,name,sub:'advances',tbd:false,full:w};
   }
+  if(slot.sf_loser!==undefined){
+    // Get the loser of a semi: the team that was NOT picked as winner
+    const matchId=slot.sf_loser;
+    const winner=bracketPicks[matchId]||null;
+    // Find the semi match to get both teams
+    const semi=SF.find(m=>m.id===matchId);
+    if(!semi||!winner) return {flag:'',name:'Semi loser',sub:'TBD',tbd:true,full:null};
+    const t1=getSlotInfo(semi.t1);const t2=getSlotInfo(semi.t2);
+    const loser=(t1&&t1.full&&t1.full!==winner)?t1:(t2&&t2.full&&t2.full!==winner)?t2:null;
+    if(!loser||!loser.full) return {flag:'',name:'Semi loser',sub:'TBD',tbd:true,full:null};
+    return {flag:loser.flag,name:loser.name,sub:'3rd place',tbd:false,full:loser.full};
+  }
   return null;
 }
 
@@ -567,8 +579,8 @@ function buildBracket(){
   // Final
   const fh=document.createElement('div');fh.className='round-header';fh.textContent='Final & 3rd place';root.appendChild(fh);
   const fg=document.createElement('div');fg.className='matches-grid';
-  // 3rd place
-  fg.appendChild(buildMatchCard({id:'third',l:'3rd place · +10 pts',t1:{from:'sf1'},t2:{from:'sf2'}},null));
+  // 3rd place — losers of semis
+  fg.appendChild(buildMatchCard({id:'third',l:'3rd place · +10 pts',t1:{sf_loser:'sf1'},t2:{sf_loser:'sf2'}},null));
   // Final
   const fc=buildMatchCard({id:'final',l:'🏆 World Cup Final · +25 pts Champion / +15 pts Runner-up',t1:{from:'sf1'},t2:{from:'sf2'}},null);
   fc.classList.add('final-card');
