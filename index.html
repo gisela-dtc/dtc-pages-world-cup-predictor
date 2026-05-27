@@ -302,20 +302,20 @@ const GROUPS={
 // Official Round of 32 matchups FIFA 2026
 const R32=[
   {id:'m73',l:'Match 73',t1:{g:'A',p:1},t2:{g:'B',p:1}},
-  {id:'m74',l:'Match 74',t1:{g:'E',p:0},t2:'best3rd'},
+  {id:'m74',l:'Match 74',t1:{g:'E',p:0},t2:{b3:0}},
   {id:'m75',l:'Match 75',t1:{g:'F',p:0},t2:{g:'C',p:1}},
-  {id:'m76',l:'Match 76',t1:{g:'C',p:0},t2:'best3rd'},
-  {id:'m77',l:'Match 77',t1:{g:'I',p:0},t2:'best3rd'},
+  {id:'m76',l:'Match 76',t1:{g:'C',p:0},t2:{b3:1}},
+  {id:'m77',l:'Match 77',t1:{g:'I',p:0},t2:{b3:2}},
   {id:'m78',l:'Match 78',t1:{g:'E',p:1},t2:{g:'I',p:1}},
-  {id:'m79',l:'Match 79',t1:{g:'A',p:0},t2:'best3rd'},
-  {id:'m80',l:'Match 80',t1:{g:'L',p:0},t2:'best3rd'},
-  {id:'m81',l:'Match 81',t1:{g:'D',p:0},t2:'best3rd'},
-  {id:'m82',l:'Match 82',t1:{g:'G',p:0},t2:'best3rd'},
+  {id:'m79',l:'Match 79',t1:{g:'A',p:0},t2:{b3:3}},
+  {id:'m80',l:'Match 80',t1:{g:'L',p:0},t2:{b3:4}},
+  {id:'m81',l:'Match 81',t1:{g:'D',p:0},t2:{b3:5}},
+  {id:'m82',l:'Match 82',t1:{g:'G',p:0},t2:{b3:6}},
   {id:'m83',l:'Match 83',t1:{g:'K',p:1},t2:{g:'L',p:1}},
   {id:'m84',l:'Match 84',t1:{g:'H',p:0},t2:{g:'J',p:1}},
-  {id:'m85',l:'Match 85',t1:{g:'B',p:0},t2:'best3rd'},
+  {id:'m85',l:'Match 85',t1:{g:'B',p:0},t2:{b3:7}},
   {id:'m86',l:'Match 86',t1:{g:'J',p:0},t2:{g:'H',p:1}},
-  {id:'m87',l:'Match 87',t1:{g:'K',p:0},t2:'best3rd'},
+  {id:'m87',l:'Match 87',t1:{g:'K',p:0},t2:{b3:8}},
   {id:'m88',l:'Match 88',t1:{g:'D',p:1},t2:{g:'G',p:1}},
 ];
 const R16=[
@@ -489,9 +489,20 @@ function updateGroupUI(gid){
 }
 
 // ===== BRACKET UI =====
+function getBest3rds(){
+  // Take the 3rd place pick from each group in order A→L, first 9
+  const thirds=Object.keys(GROUPS).map(gid=>(groupPicks[gid]||[])[2]||null).filter(Boolean);
+  return thirds; // returns up to 12, we use index to pick the right one
+}
+
 function getSlotInfo(slot){
   if(!slot) return null;
-  if(slot==='best3rd') return {flag:'🌍',name:'Best 3rd',sub:'TBD',tbd:true,full:null};
+  if(slot.b3!==undefined){
+    const b3list=getBest3rds();
+    const team=b3list[slot.b3]||null;
+    if(team){const {flag,name}=splitTeam(team);return {flag,name,sub:'Best 3rd · '+Object.keys(GROUPS)[slot.b3],tbd:false,full:team};}
+    return {flag:'🌍',name:'Best 3rd #'+(slot.b3+1),sub:'pick 3rds first',tbd:true,full:null};
+  }
   if(slot.g!==undefined){
     const t=(groupPicks[slot.g]||[])[slot.p]||null;
     if(!t) return {flag:'',name:(slot.p===0?'1st':'2nd')+' Grp '+slot.g,sub:'',tbd:true,full:null};
