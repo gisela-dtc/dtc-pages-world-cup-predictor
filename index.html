@@ -141,7 +141,7 @@ input:focus,select:focus{outline:none;border-color:#8A9A2A;background:#fff}
   <div class="tab" onclick="showPage('bracket')">Bracket</div>
   <div class="tab" onclick="showPage('specials')">Specials</div>
   <div class="tab" onclick="showPage('ranking')">Ranking</div>
-  <div class="tab" onclick="showPage('admin')">Admin</div>
+  <div class="tab" id="admin-tab" style="display:none" onclick="showPage('admin')">Admin</div>
 </div>
 
 <!-- LOADING -->
@@ -282,6 +282,7 @@ input:focus,select:focus{outline:none;border-color:#8A9A2A;background:#fff}
 
 <script>
 const APP_KEY='dtc_pages';
+const ADMIN_KEY='dtcpages';
 const PICKS_OPEN = new Date('2026-06-01T00:00:00');
 const PICKS_CLOSE = new Date('2026-06-10T23:59:59');
 function picksOpen() {
@@ -417,6 +418,13 @@ async function init(){
     return;
   }finally{showLoading(false);}
   setInterval(async()=>{try{await loadAll();renderRanking();}catch(e){}},15000);
+  // Show admin tab if correct password in URL
+  const urlParams=new URLSearchParams(window.location.search);
+  const adminKey=urlParams.get('admin');
+  if(adminKey===ADMIN_KEY){
+    const adminTab=document.getElementById('admin-tab');
+    if(adminTab) adminTab.style.display='';
+  }
 }
 function showLoading(on){document.getElementById('loading').style.display=on?'flex':'none';}
 
@@ -663,10 +671,19 @@ function buildAdminBracket(){
 function loadUserPicks(){
   if(!currentUser||!allPredictions[currentUser]) return;
   const p=allPredictions[currentUser];
-  if(p.groups) Object.entries(p.groups).forEach(([gid,pos])=>{groupPicks[gid]=pos||[];updateGroupUI(gid);});
-  if(p.bracket){bracketPicks=Object.assign({},p.bracket);buildBracket();}
+  if(p.groups) {
+    Object.entries(p.groups).forEach(([gid,pos])=>{
+      groupPicks[gid]=pos||[];
+      updateGroupUI(gid);
+    });
+  }
+  if(p.bracket && Object.keys(p.bracket).length>0){
+    bracketPicks=Object.assign({},p.bracket);
+    buildBracket(); // rebuild bracket with saved picks
+  }
   if(p.top_scorer) document.getElementById('pick-scorer').value=p.top_scorer;
   if(p.extra_time) document.getElementById('pick-extra-time').value=p.extra_time;
+  updateProgress();
   loadResultsUI();
 }
 function loadResultsUI(){
