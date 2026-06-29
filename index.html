@@ -816,7 +816,8 @@ function renderRanking(){
   const entries=Object.entries(allPredictions)
     .map(([name,p])=>{
       const hasGroups=p.groups&&Object.values(p.groups).some(g=>g&&g.length>0);
-      return {name,emoji:p.emoji||'⚽',points:p.points||0,hasPicks:hasGroups};
+      const hasBracket=p.bracket&&Object.keys(p.bracket).length>0;
+      return {name,emoji:p.emoji||'⚽',points:p.points||0,hasPicks:hasGroups||hasBracket};
     })
     .sort((a,b)=>b.points-a.points||a.name.localeCompare(b.name));
   if(!entries.length){list.innerHTML='<div class="empty-state"><span style="font-size:32px;display:block;margin-bottom:8px">🏆</span>No picks submitted yet</div>';return;}
