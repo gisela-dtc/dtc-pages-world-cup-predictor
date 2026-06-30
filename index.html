@@ -290,7 +290,7 @@ const BRACKET_CLOSE = new Date('2026-06-30T15:00:00Z'); // 12pm ARG del 30/6
 function picksOpen() { return false; }
 function beforeOpen() { return false; }
 function afterClose() { return true; }
-function bracketOpen() { return new Date() < BRACKET_CLOSE; }
+function bracketOpen() { return false; } // BRACKET bloqueado manualmente, ya no se puede completar ni cambiar
 const SUPABASE_URL='https://jobljkexndalnlnermip.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpvYmxqa2V4bmRhbG5sbmVybWlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4ODYzNDksImV4cCI6MjA5NTQ2MjM0OX0.Z9s7Mw87-1sWEqg-Zj0_T1dRam4xI1efDWU7NEzSPFQ';
 
